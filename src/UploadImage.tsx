@@ -1,35 +1,53 @@
 import React, { useState } from "react";
 import {
   Button,
+  Center,
   Container,
   Divider,
   Flex,
   Input,
+  Loader,
   Paper,
   Textarea,
   Title,
 } from "@mantine/core";
-import { DropzoneComponent } from "./Dropzone";
-import { FileWithPath } from "@mantine/dropzone";
+import * as api from "./api";
+import { NavLink, useNavigate } from "react-router-dom";
 
-export const UploadImage = () => {
+export type NFTImage = {
+  imageUrl: string;
+  name: string;
+};
+interface IProps {
+  onImageUploaded: (image: NFTImage) => void;
+}
+
+export const UploadImage = ({ onImageUploaded }: IProps) => {
   const [prompt, setPrompt] = useState("");
   const [name, setName] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const onDropImage = (files: FileWithPath[]) => {
-    console.log(files);
-    const file = files[0];
-    if (!file) {
+  const navigate = useNavigate();
+
+  const handleSubmit = async () => {
+    if (!name || !prompt) {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("file", file, file.name);
-    console.log("formData", formData.get("file"));
-  };
+    setIsLoading(true);
+    try {
+      const response = await api.createNft(name, prompt);
+      const imageUrl = response.data.data[0].url;
 
-  const handleSubmit = () => {
-    console.log("state", { name, prompt });
+      if (imageUrl) {
+        onImageUploaded({ name, imageUrl });
+        navigate("/images");
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
   return (
     <Container size="xs" px="xs" my="lg">
@@ -58,7 +76,21 @@ export const UploadImage = () => {
             label="NFT Prompt"
             withAsterisk
           />
-          <Button onClick={handleSubmit}>Submit</Button>
+          <Flex direction={"column"}>
+            <Button onClick={isLoading ? () => {} : handleSubmit}>
+              {isLoading ? (
+                <Loader color="white" size="sm" variant="dots" />
+              ) : (
+                "Submit"
+              )}
+            </Button>
+            <Divider my="sm" />
+            <Center>
+              <NavLink to="/images">
+                <Button variant="white">Or just go to see my NFTs</Button>
+              </NavLink>
+            </Center>
+          </Flex>
         </Flex>
       </Paper>
     </Container>

@@ -14,8 +14,10 @@
     "@mantine/dropzone": "^5.10.4",
     "@mantine/hooks": "^5.10.4",
     "@tabler/icons": "^2.4.0",
+    "axios": "^1.3.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-router-dom": "^6.8.1",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
